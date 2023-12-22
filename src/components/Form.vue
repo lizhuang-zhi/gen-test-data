@@ -4,7 +4,7 @@ import { ref, onMounted } from "vue";
 import { ElButton, ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { randomTimeRecord } from "@/record/randomGen.js";
 import { NotGenFieldIDs } from "@/record/fieldID.js";
-import { inArray } from "@/record/tools.js";
+import { inArray } from "@/utils/tools.js";
 
 export default {
   components: {
@@ -23,7 +23,8 @@ export default {
     const fieldMetaList = ref([]);
     const fieldMap = ref({});
     const genRecordNum = ref(5);
-    const stopAddRecord = ref(false);
+    const startAddRecord = ref(false); // 开始添加记录
+    const stopAddRecord = ref(false);  // 停止添加记录
     const loading = ref(false);
 
     onMounted(async () => {
@@ -55,11 +56,11 @@ export default {
 
       const table = await bitable.base.getTableById(tableId);
 
-      let loopContinue = true; // 是否继续循环
+      startAddRecord.value = true;   // 开始添加记录
 
-      for (let i = 0; i < genRecordNum.value && loopContinue; i++) {
+      for (let i = 0; i < genRecordNum.value && startAddRecord.value; i++) {
         if (stopAddRecord.value) {
-          loopContinue = false;
+          startAddRecord.value = false;
           stopAddRecord.value = false;
           break;
         }
@@ -149,6 +150,7 @@ export default {
       fieldMetaList,
       fieldMap,
       genRecordNum,
+      startAddRecord,
       stopAddRecord,
       loading,
 
@@ -196,7 +198,7 @@ export default {
   </div>
 
   <!-- 关闭按钮 -->
-  <div class="close_button" v-show="loading">
+  <div class="close_button" v-show="startAddRecord && loading">
     <el-button type="primary" plain size="large" @click="stopAddRecordEvent"
       >停止创建</el-button
     >
