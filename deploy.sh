@@ -16,3 +16,4 @@ npm run deploy
 
 # 提示完成
 echo "Deployment complete!"
+echo "部署详情：https://github.com/lizhuang-zhi/gen-test-data/tree/gh-pages"
