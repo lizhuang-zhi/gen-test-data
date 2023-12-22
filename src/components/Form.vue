@@ -132,7 +132,7 @@ export default {
           // 过滤掉公式类型字段（以及返回信息字段、完成配置）
           if (
             fieldMap.value[field_id] !== 20 &&
-            !inArray(field_id, NotGenFieldIDs)
+            !inArray(NotGenFieldIDs, field_id)
           ) {
             filterFields[field_id] = fields[field_id];
           }
