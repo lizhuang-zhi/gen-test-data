@@ -2,7 +2,9 @@
 import { bitable } from "@lark-base-open/js-sdk";
 import { ref, onMounted } from "vue";
 import { ElButton, ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
-import { randomTimeRecord } from "@/record/random.js";
+import { randomTimeRecord } from "@/record/randomGen.js";
+import { NotGenFieldIDs } from "@/record/fieldID.js";
+import { inArray } from "@/record/tools.js";
 
 export default {
   components: {
@@ -21,6 +23,7 @@ export default {
     const fieldMetaList = ref([]);
     const fieldMap = ref({});
     const genRecordNum = ref(5);
+    const stopAddRecord = ref(false);
     const loading = ref(false);
 
     onMounted(async () => {
@@ -51,7 +54,15 @@ export default {
       allTableRecordList = filterFormulaField(allTableRecordList); // 剔除记录中公式类型字段
 
       const table = await bitable.base.getTableById(tableId);
-      for (let i = 0; i < genRecordNum.value; i++) {
+
+      let loopContinue = true; // 是否继续循环
+
+      for (let i = 0; i < genRecordNum.value && loopContinue; i++) {
+        if (stopAddRecord.value) {
+          loopContinue = false;
+          stopAddRecord.value = false;
+          break;
+        }
         let newRecord = randomTimeRecord(allTableRecordList[0]); // 随机生成一条记录(时间字段随机)
         // HACK： 不能处理公式字段类型
         await table.addRecord(newRecord);
@@ -76,6 +87,11 @@ export default {
     // 改变生成记录数
     const handleChange = (value) => {
       console.log(value);
+    };
+
+    // 停止添加记录
+    const stopAddRecordEvent = () => {
+      stopAddRecord.value = true;
     };
 
     // **************************** 封装方法 ****************************
@@ -111,14 +127,13 @@ export default {
       filterFormulaFieldList = recordList.map((record) => {
         let fields = record.fields;
         let filterFields = {};
-        for (let key in fields) {
+        for (let field_id in fields) {
           // 过滤掉公式类型字段（以及返回信息字段、完成配置）
           if (
-            fieldMap.value[key] !== 20 &&
-            key !== "fldlHXJ5vl" &&
-            key !== "fldnKn0uBX"
+            fieldMap.value[field_id] !== 20 &&
+            !inArray(field_id, NotGenFieldIDs)
           ) {
-            filterFields[key] = fields[key];
+            filterFields[field_id] = fields[field_id];
           }
         }
         return {
@@ -134,6 +149,7 @@ export default {
       fieldMetaList,
       fieldMap,
       genRecordNum,
+      stopAddRecord,
       loading,
 
       getFieldIdTypeMap,
@@ -141,6 +157,7 @@ export default {
       changeTableEvent,
       handleChange,
       filterFormulaField,
+      stopAddRecordEvent,
     };
   },
 };
@@ -177,6 +194,13 @@ export default {
       >
     </el-form>
   </div>
+
+  <!-- 关闭按钮 -->
+  <div class="close_button" v-show="loading">
+    <el-button type="primary" plain size="large" @click="stopAddRecordEvent"
+      >停止创建</el-button
+    >
+  </div>
 </template>
 
 <style scoped lang="less">
@@ -192,5 +216,12 @@ export default {
       font-size: 14px;
     }
   }
+}
+
+// 关闭按钮
+.close_button {
+  position: fixed;
+  top: 35%;
+  left: 43%;
 }
 </style>

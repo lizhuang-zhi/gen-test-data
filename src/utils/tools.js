@@ -14,3 +14,8 @@ export const deepClone = (obj) => {
     }
     return newObj;
 };
+
+// 包含在数组中
+export const inArray = (arr, item) => {
+    return arr.indexOf(item) !== -1;
+};
