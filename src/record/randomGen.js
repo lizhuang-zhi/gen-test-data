@@ -1,6 +1,6 @@
 import { formatDate } from "@/utils/time.js";
-import { RandomGenFieldIDs } from "@/record/fieldID.js";
- 
+import { RandomGenFieldIDs } from "@/record/field.js";
+
 // 时间字段随机累加
 /* 
     @param timeStrVal: 时间字段值
@@ -52,17 +52,17 @@ export function randomTimeRecord(record) {
     };
     let randomNum = Math.floor(Math.random() * 100) + 1;  // 生成1-100的随机数
     let randomUnit = randomTimeUnit();  // 随机返回单位h、m、s
-    for (let key in fields) {
-        if (RandomGenFieldIDs.includes(key)) {
+    for (let field_id in fields) {
+        if (RandomGenFieldIDs.includes(field_id)) {
             // TODO：如果是时间类型的字段, 无法处理，这里只处理了文本类型的时间
-            resultRecord.fields[key] = [
+            resultRecord.fields[field_id] = [
                 {
-                    text: timeFieldRandomAdd(fields[key][0].text, randomNum + randomUnit),
+                    text: timeFieldRandomAdd(fields[field_id][0].text, randomNum + randomUnit),
                     type: "text"
                 }
             ]
         } else {
-            resultRecord.fields[key] = fields[key];
+            resultRecord.fields[field_id] = fields[field_id];
         }
     }
     return resultRecord;

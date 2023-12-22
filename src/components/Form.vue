@@ -3,7 +3,7 @@ import { bitable } from "@lark-base-open/js-sdk";
 import { ref, onMounted } from "vue";
 import { ElButton, ElForm, ElFormItem, ElSelect, ElOption } from "element-plus";
 import { randomTimeRecord } from "@/record/randomGen.js";
-import { NotGenFieldIDs } from "@/record/fieldID.js";
+import { NotGenFieldIDs, FieldType } from "@/record/field.js";
 import { inArray } from "@/utils/tools.js";
 
 export default {
@@ -24,7 +24,7 @@ export default {
     const fieldMap = ref({});
     const genRecordNum = ref(5);
     const startAddRecord = ref(false); // 开始添加记录
-    const stopAddRecord = ref(false);  // 停止添加记录
+    const stopAddRecord = ref(false); // 停止添加记录
     const loading = ref(false);
 
     onMounted(async () => {
@@ -56,7 +56,7 @@ export default {
 
       const table = await bitable.base.getTableById(tableId);
 
-      startAddRecord.value = true;   // 开始添加记录
+      startAddRecord.value = true; // 开始添加记录
 
       for (let i = 0; i < genRecordNum.value && startAddRecord.value; i++) {
         // 停止添加记录
@@ -127,7 +127,7 @@ export default {
         for (let field_id in fields) {
           // 过滤掉公式类型字段（以及返回信息字段、完成配置）
           if (
-            fieldMap.value[field_id] !== 20 &&
+            fieldMap.value[field_id] !== FieldType.FORMULA &&
             !inArray(NotGenFieldIDs, field_id)
           ) {
             filterFields[field_id] = fields[field_id];
@@ -179,11 +179,7 @@ export default {
         </el-select>
       </el-form-item>
       <el-form-item label="生成记录数" size="large">
-        <el-input-number
-          v-model="genRecordNum"
-          :min="1"
-          :max="1000"
-        />
+        <el-input-number v-model="genRecordNum" :min="1" :max="1000" />
       </el-form-item>
       <el-button type="primary" plain size="large" @click="genTestData"
         >批量生成</el-button
