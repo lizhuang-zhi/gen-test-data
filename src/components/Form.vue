@@ -59,6 +59,7 @@ export default {
       startAddRecord.value = true;   // 开始添加记录
 
       for (let i = 0; i < genRecordNum.value && startAddRecord.value; i++) {
+        // 停止添加记录
         if (stopAddRecord.value) {
           startAddRecord.value = false;
           stopAddRecord.value = false;
@@ -83,11 +84,6 @@ export default {
         fieldMetaList.value = await view.getFieldMetaList(); // 获取所有字段元数据
       }
       loading.value = false;
-    };
-
-    // 改变生成记录数
-    const handleChange = (value) => {
-      console.log(value);
     };
 
     // 停止添加记录
@@ -157,7 +153,6 @@ export default {
       getFieldIdTypeMap,
       genTestData,
       changeTableEvent,
-      handleChange,
       filterFormulaField,
       stopAddRecordEvent,
     };
@@ -188,7 +183,6 @@ export default {
           v-model="genRecordNum"
           :min="1"
           :max="1000"
-          @change="handleChange"
         />
       </el-form-item>
       <el-button type="primary" plain size="large" @click="genTestData"
