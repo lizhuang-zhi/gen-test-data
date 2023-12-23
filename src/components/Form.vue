@@ -213,7 +213,7 @@ export default {
 // 关闭按钮
 .close_button {
   position: fixed;
-  top: 35%;
+  top: 55%;
   left: 43%;
 }
 </style>
