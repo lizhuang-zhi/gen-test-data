@@ -21,7 +21,7 @@ export default {
     // 展示数据
     const tableMetaList = ref([]);
     const fieldMetaList = ref([]);
-    const fieldMap = ref({});
+    const fieldIdTypeMap = ref({});
     const genRecordNum = ref(5);
     const startAddRecord = ref(false); // 开始添加记录
     const stopAddRecord = ref(false); // 停止添加记录
@@ -38,7 +38,7 @@ export default {
       formData.value.table = selection.tableId;
       tableMetaList.value = tableList;
       fieldMetaList.value = await view.getFieldMetaList(); // 获取所有字段元数据
-      fieldMap.value = getFieldIdTypeMap(fieldMetaList.value); // 获取字段id和字段类型的映射(Map)
+      fieldIdTypeMap.value = getFieldIdTypeMap(fieldMetaList.value); // 获取字段id和字段类型的映射(Map)
 
       loading.value = false;
     });
@@ -52,8 +52,8 @@ export default {
         loading.value = false;
         return alert("请先添加一条模板记录");
       }
+      console.log(allTableRecordList)
       allTableRecordList = filterFormulaField(allTableRecordList); // 剔除记录中公式类型字段
-
       const table = await bitable.base.getTableById(tableId);
 
       startAddRecord.value = true; // 开始添加记录
@@ -65,7 +65,7 @@ export default {
           stopAddRecord.value = false;
           break;
         }
-        let newRecord = randomTimeRecord(allTableRecordList[0]); // 随机生成一条记录(时间字段随机)
+        let newRecord = randomTimeRecord(allTableRecordList[0], fieldIdTypeMap.value); // 随机生成一条记录(时间字段随机)
         // HACK： 不能处理公式字段类型
         await table.addRecord(newRecord);
       }
@@ -95,11 +95,11 @@ export default {
     // 获取字段id和字段类型的映射(Map)
     const getFieldIdTypeMap = (fieldMetaList) => {
       if (!fieldMetaList || fieldMetaList.length === 0) return {};
-      let fieldMap = {};
+      let fieldIdTypeMap = {};
       fieldMetaList.forEach((field) => {
-        fieldMap[field.id] = field.type;
+        fieldIdTypeMap[field.id] = field.type;
       });
-      return fieldMap;
+      return fieldIdTypeMap;
     };
 
     // 获取表的所有（详细）记录
@@ -127,7 +127,7 @@ export default {
         for (let field_id in fields) {
           // 过滤掉公式类型字段（以及返回信息字段、完成配置）
           if (
-            fieldMap.value[field_id] !== FieldType.FORMULA &&
+            fieldIdTypeMap.value[field_id] !== FieldType.FORMULA &&
             !inArray(NotGenFieldIDs, field_id)
           ) {
             filterFields[field_id] = fields[field_id];
@@ -144,7 +144,7 @@ export default {
       formData,
       tableMetaList,
       fieldMetaList,
-      fieldMap,
+      fieldIdTypeMap,
       genRecordNum,
       startAddRecord,
       stopAddRecord,
